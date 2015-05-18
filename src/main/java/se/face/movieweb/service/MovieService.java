@@ -13,4 +13,8 @@ public interface MovieService {
 	Map<String, Object> searchMoviesByTitle(String title);
 	
 	Map<String, Object> getMovieById(int id);
+	
+	Map<String, Object> searchMoviesByTitleExternally(String title);
+	
+	Map<String, Object> getMovieByIdExternally(int id);
 }

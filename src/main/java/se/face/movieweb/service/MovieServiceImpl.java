@@ -3,9 +3,6 @@
  */
 package se.face.movieweb.service;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,24 +27,34 @@ public class MovieServiceImpl implements MovieService {
 	private static final String searchPath = "/movies/search?query={query}";
 	private static final String getPath = "/movies/{id}";
 	
+	private static final String searchExtPath = "/movies/external/search?query={query}";
+	private static final String getExtPath = "/movies/external/{id}";
+	
 	@Override
 	public Map<String, Object> searchMoviesByTitle(String title) {
-		try (CloseableHttpClient client = createClient()) {
-			HttpGet get = new HttpGet(
-					hostAddress+searchPath.replace("{query}", urlEncode(title)));
-			return executeForMap(client, get); 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
+		return callGet(searchPath, "{query}", title);
 	}
 
 	@Override
 	public Map<String, Object> getMovieById(int id) {
+		return callGet(getPath, "{id}", String.valueOf(id));
+	}
+
+	@Override
+	public Map<String, Object> searchMoviesByTitleExternally(String title) {
+		return callGet(searchExtPath, "{query}", title);
+	}
+
+	@Override
+	public Map<String, Object> getMovieByIdExternally(int id) {
+		return callGet(getExtPath, "{id}", String.valueOf(id));
+	}
+
+	private Map<String, Object> callGet(String path, String requestParamKey, String requestParamValue) {
 		try (CloseableHttpClient client = createClient()) {
 			HttpGet get = new HttpGet(
-					hostAddress+getPath.replace("{id}", urlEncode(String.valueOf(id))));
-			return executeForMap(client, get);
+					hostAddress+path.replace(requestParamKey, urlEncode(requestParamValue)));
+			return executeForMap(client, get); 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
