@@ -11,6 +11,7 @@
 <c:when test="${type=='external'}">
 	<spring:url value="/movie/searchext" var="searchUrl" />
 	<spring:url value="/movie/getext" var="getMovieUrl" />
+	<spring:url value="/movie/save" var="saveMovieUrl" />
 </c:when>
 <c:otherwise>
 	<spring:url value="/movie/search" var="searchUrl" />
@@ -39,6 +40,9 @@ table{
 	font-weight: bold;
 	font-size: 20px;
 }
+.result{
+	color: red;
+}
 </style>
 <script src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
 <script src="http://cdn.sockjs.org/sockjs-0.3.4.js"></script>
@@ -46,6 +50,8 @@ table{
 <script type="text/javascript">
 	$(function start(){
 		$("#searchbutton").click(searchMovies);
+		$("#savebutton").click(saveMovie);
+		$("#savebutton").css("display", "none");
 	});
 	function searchMovies(){
 		var q = $("#searchfield").val();
@@ -72,10 +78,14 @@ table{
 	function showMovie(movieId){
 		clear();
 		$.getJSON("${getMovieUrl}?id="+movieId, function(movie){
-			$("<h1 />",{
-				text : "Movie: "+movie.originalTitle
-			}).appendTo("#infobox");
-			
+			$("<ul />").appendTo("#listbox");
+			$.each(movie, function(key, value){
+				if (value != null && value.constructor !== Array){
+					$("<li />",{
+						text : key+": "+value
+					}).appendTo("#listbox ul");
+				}
+			});
 			$("<span />",{
 				"class" : "head1",
 				text : "Cast and Crew"
@@ -89,37 +99,56 @@ table{
 				text: "Name"
 			}).appendTo("table");
 			
-			$.each(movie.castAndCrew, function(i, castAndCrewMember){
+			$.each(movie.workingRoles, function(i, workingRole){
 				$("<tr/>",{
-					id: "movrow"+castAndCrewMember.id
+					id: "movrow"+i
 				}).appendTo("table");
 				
 				
-				$("#movrow"+castAndCrewMember.id)
+				$("#movrow"+i)
 					.append($("<td/>",{
-						text : castAndCrewMember.role
+						text : workingRole.role
 					}))
 					.append($("<td/>",{
-						text : castAndCrewMember.firstName+" "+castAndCrewMember.lastName
+						text : workingRole.person.firstName+" "+workingRole.person.lastName
 					}));
 	        });
 		});
+		<c:if test="${type=='external'}">
+			$("#savebutton").css("display", "block");
+			$("#movieId").val(movieId);
+		</c:if>
+	}
+	function saveMovie(){
+		var id = $("#movieId").val();
+		$.post("${saveMovieUrl}?id="+id)
+		.done(function() {
+    		$("#saveresult").text("Save success!");
+  		})
+  		.fail(function() {
+  			$("#saveresult").text("Save failed!");
+  		});
 	}
 	function clear(){
 		$("#infobox").empty();
 		$("#listbox").empty();
+		$("#savebutton").css("display", "none");
+		$("#saveresult").empty();
 	}
 </script>
 </head>
 <body>
 	<div id="container">
 		<div id="searchbox">
-			<input type="text" id="searchfield" /> <button id="searchbutton">Search</button>	
+			<input type="text" id="searchfield" /> <button id="searchbutton">Search</button>
+			<button id="savebutton">Save</button>
+			<span id="saveresult" class="result"></span>
 		</div>
 		<div id="infobox">		
 		</div>
 		<div id="listbox">		
 		</div>
+		<input type="hidden" id="movieId">
 	</div>
 </body>
 </html>

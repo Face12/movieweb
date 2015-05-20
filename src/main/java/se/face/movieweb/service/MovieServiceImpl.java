@@ -10,6 +10,8 @@ import java.util.Map;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.stereotype.Service;
@@ -28,7 +30,8 @@ public class MovieServiceImpl implements MovieService {
 	private static final String getPath = "/movies/{id}";
 	
 	private static final String searchExtPath = "/movies/external/search?query={query}";
-	private static final String getExtPath = "/movies/external/{id}";
+	private static final String getExtPath = "/movies/external/{imdbid}";
+	private static final String savePath = "/movies/save/external/{id}";
 	
 	@Override
 	public Map<String, Object> searchMoviesByTitle(String title) {
@@ -46,8 +49,23 @@ public class MovieServiceImpl implements MovieService {
 	}
 
 	@Override
-	public Map<String, Object> getMovieByIdExternally(int id) {
-		return callGet(getExtPath, "{id}", String.valueOf(id));
+	public Map<String, Object> getMovieByIdExternally(String imdbId) {
+		return callGet(getExtPath, "{imdbid}", String.valueOf(imdbId));
+	}
+
+	@Override
+	public Map<String, Object> saveMovieByExternalId(String id) {
+		return callPost(savePath, "{id}", id);
+	}
+
+	private Map<String, Object> callPost(String path, String requestParamKey, String requestParamValue) {
+		try (CloseableHttpClient client = createClient()) {
+			HttpPost post = new HttpPost(
+					hostAddress+path.replace(requestParamKey, urlEncode(requestParamValue)));
+			return executeForMap(client, post); 
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private Map<String, Object> callGet(String path, String requestParamKey, String requestParamValue) {
@@ -56,14 +74,13 @@ public class MovieServiceImpl implements MovieService {
 					hostAddress+path.replace(requestParamKey, urlEncode(requestParamValue)));
 			return executeForMap(client, get); 
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
-		return null;
 	}
 
-	private HashMap<String, Object> executeForMap(CloseableHttpClient client, HttpGet get) throws Exception {
+	private HashMap<String, Object> executeForMap(CloseableHttpClient client, HttpRequestBase request) throws Exception {
 		ObjectMapper objectMapper = new ObjectMapper();
-		CloseableHttpResponse response = client.execute(get);
+		CloseableHttpResponse response = client.execute(request);
 		if (response.getStatusLine().getStatusCode() / 100 == 2){
 			HttpEntity entity = response.getEntity();
 							

@@ -8,6 +8,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
@@ -60,8 +61,14 @@ public class MovieController {
 	}
 	
 	@RequestMapping("/getext")
-	public @ResponseBody Map<String, Object> getExternal(@RequestParam("id") int id){
+	public @ResponseBody Map<String, Object> getExternal(@RequestParam("id") String id){
 		System.out.println("Getting external movie: "+id);
 		return movieService.getMovieByIdExternally(id);
+	}
+	
+	@RequestMapping(value = "/save", method = RequestMethod.POST)
+	public @ResponseBody Map<String, Object> save(@RequestParam("id") String id){
+		System.out.println("Saving movie: "+id);
+		return movieService.saveMovieByExternalId(id);
 	}
 }
