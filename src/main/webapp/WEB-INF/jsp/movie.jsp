@@ -18,6 +18,7 @@
 	<spring:url value="/movie/get" var="getMovieUrl" />
 </c:otherwise>
 </c:choose>
+<link rel="stylesheet" type="text/css" href="../css/movieweb.css">
 <style type="text/css">
 table, th, td{
 	border: 1px solid green;
@@ -34,24 +35,19 @@ th{
 table{
 	width: 25%;
 }
-.head1{
-	color: blue;
-	font-family: cursive;
-	font-weight: bold;
-	font-size: 20px;
-}
-.result{
-	color: red;
-}
 </style>
 <script src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
-<script src="http://cdn.sockjs.org/sockjs-0.3.4.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.js"></script>
 <script type="text/javascript">
-	$(function start(){
+	$(function (){
 		$("#searchbutton").click(searchMovies);
 		$("#savebutton").click(saveMovie);
 		$("#savebutton").css("display", "none");
+		$body = $("body");
+
+		$(document).on({
+		    ajaxStart: function() { $body.addClass("loading");    },
+		     ajaxStop: function() { $body.removeClass("loading"); }    
+		});
 	});
 	function searchMovies(){
 		var q = $("#searchfield").val();
@@ -123,10 +119,10 @@ table{
 		var id = $("#movieId").val();
 		$.post("${saveMovieUrl}?id="+id)
 		.done(function() {
-    		$("#saveresult").text("Save success!");
+    		$("#saveresult").removeClass().addClass("res_ok").text("Save success!");
   		})
   		.fail(function() {
-  			$("#saveresult").text("Save failed!");
+  			$("#saveresult").removeClass().addClass("res_fail").text("Save failed!");
   		});
 	}
 	function clear(){
@@ -142,7 +138,7 @@ table{
 		<div id="searchbox">
 			<input type="text" id="searchfield" /> <button id="searchbutton">Search</button>
 			<button id="savebutton">Save</button>
-			<span id="saveresult" class="result"></span>
+			<span id="saveresult"></span>
 		</div>
 		<div id="infobox">		
 		</div>
@@ -150,5 +146,6 @@ table{
 		</div>
 		<input type="hidden" id="movieId">
 	</div>
+	<div class="modal"></div>
 </body>
 </html>
