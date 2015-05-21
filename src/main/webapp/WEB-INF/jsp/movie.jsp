@@ -41,7 +41,7 @@ table{
 <script type="text/javascript">
 	$(function (){
 		useLoadingSpinner();
-		$("#searchbutton").click(searchMovies);
+		buttonAndEnterFiresFunction("#searchbutton", "#searchfield", searchMovies);
 		$("#savebutton").click(saveMovie);
 		$("#savebutton").css("display", "none");
 	});
