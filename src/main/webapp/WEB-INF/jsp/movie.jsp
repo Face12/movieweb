@@ -1,11 +1,11 @@
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+<%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="ISO-8859-1"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Movies</title>
 <c:choose>
 <c:when test="${type=='external'}">
@@ -37,17 +37,13 @@ table{
 }
 </style>
 <script src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
+<script src="../js/movieweb.js"></script>
 <script type="text/javascript">
 	$(function (){
+		useLoadingSpinner();
 		$("#searchbutton").click(searchMovies);
 		$("#savebutton").click(saveMovie);
 		$("#savebutton").css("display", "none");
-		$body = $("body");
-
-		$(document).on({
-		    ajaxStart: function() { $body.addClass("loading");    },
-		     ajaxStop: function() { $body.removeClass("loading"); }    
-		});
 	});
 	function searchMovies(){
 		var q = $("#searchfield").val();
@@ -146,6 +142,5 @@ table{
 		</div>
 		<input type="hidden" id="movieId">
 	</div>
-	<div class="modal"></div>
 </body>
 </html>
