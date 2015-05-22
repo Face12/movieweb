@@ -18,3 +18,9 @@ function buttonAndEnterFiresFunction(button, field, func){
 		}
 	});
 }
+
+function emptyAll(elements){
+	$.each(elements, function(index, value){
+		$(value).empty();
+	});
+}

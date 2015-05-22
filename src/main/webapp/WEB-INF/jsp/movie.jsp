@@ -122,10 +122,8 @@ table{
   		});
 	}
 	function clear(){
-		$("#infobox").empty();
-		$("#listbox").empty();
+		emptyAll(["#infobox", "#listbox", "#saveresult"]);
 		$("#savebutton").css("display", "none");
-		$("#saveresult").empty();
 	}
 </script>
 </head>
