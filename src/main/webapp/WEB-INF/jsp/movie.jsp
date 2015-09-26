@@ -49,13 +49,20 @@ table{
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.js"></script>
 <script type="text/javascript">
 	$(function start(){
-		$("#searchbutton").click(searchMovies);
 		$("#savebutton").click(saveMovie);
 		$("#savebutton").css("display", "none");
+		$("#loadAnim").css("display", "none");
 	});
 	function searchMovies(){
 		var q = $("#searchfield").val();
-		$.getJSON("${searchUrl}?q="+q, showSearchResult);
+		$("#loadAnim").css("display", "block");
+		$.getJSON("${searchUrl}?q="+q, showSearchResult)
+		.fail(function() {
+			$("#actionresult").text("Search error!");
+  		})
+		.always(function() {
+			$("#loadAnim").css("display", "none");
+  		});
 	}
 	
 	function showSearchResult(result){
@@ -77,6 +84,7 @@ table{
 	}
 	function showMovie(movieId){
 		clear();
+		$("#loadAnim").css("display", "block");
 		$.getJSON("${getMovieUrl}?id="+movieId, function(movie){
 			$("<ul />").appendTo("#listbox");
 			$.each(movie, function(key, value){
@@ -113,36 +121,47 @@ table{
 						text : workingRole.person.firstName+" "+workingRole.person.lastName
 					}));
 	        });
-		});
-		<c:if test="${type=='external'}">
-			$("#savebutton").css("display", "block");
-			$("#movieId").val(movieId);
-		</c:if>
+		})
+		.done(function() {
+			<c:if test="${type=='external'}">
+				$("#savebutton").css("display", "block");
+				$("#movieId").val(movieId);
+			</c:if>
+		})
+		.fail(function() {
+			$("#actionresult").text("Showing movie error!");
+  		})
+		.always(function() {
+			$("#loadAnim").css("display", "none");
+  		});
 	}
 	function saveMovie(){
 		var id = $("#movieId").val();
 		$.post("${saveMovieUrl}?id="+id)
 		.done(function() {
-    		$("#saveresult").text("Save success!");
+    		$("#actionresult").text("Save success!");
   		})
   		.fail(function() {
-  			$("#saveresult").text("Save failed!");
+  			$("#actionresult").text("Save failed!");
   		});
 	}
 	function clear(){
 		$("#infobox").empty();
 		$("#listbox").empty();
 		$("#savebutton").css("display", "none");
-		$("#saveresult").empty();
+		$("#actionresult").empty();
 	}
 </script>
 </head>
 <body>
 	<div id="container">
 		<div id="searchbox">
-			<input type="text" id="searchfield" /> <button id="searchbutton">Search</button>
+			<form action="javascript:searchMovies();">
+				<input type="text" id="searchfield" /> 
+				<input type="submit" value="Search"><img id="loadAnim" src="../img/green-spinner.gif" />
+			</form>			
 			<button id="savebutton">Save</button>
-			<span id="saveresult" class="result"></span>
+			<span id="actionresult" class="result"></span>
 		</div>
 		<div id="infobox">		
 		</div>
