@@ -47,7 +47,10 @@ table{
 	});
 	function searchMovies(){
 		var q = $("#searchfield").val();
-		$.getJSON("${searchUrl}?q="+q, showSearchResult);
+		$.getJSON("${searchUrl}?q="+q, showSearchResult)
+		.fail(function() {
+			showErrorText("Search error!");
+  		});
 	}
 	
 	function showSearchResult(result){
@@ -105,25 +108,36 @@ table{
 						text : workingRole.person.firstName+" "+workingRole.person.lastName
 					}));
 	        });
-		});
-		<c:if test="${type=='external'}">
-			$("#savebutton").css("display", "block");
-			$("#movieId").val(movieId);
-		</c:if>
+		})
+		.done(function() {
+			<c:if test="${type=='external'}">
+				$("#savebutton").css("display", "block");
+				$("#movieId").val(movieId);
+			</c:if>
+		})
+		.fail(function() {
+			showErrorText("Showing movie error!");
+  		});
 	}
 	function saveMovie(){
 		var id = $("#movieId").val();
 		$.post("${saveMovieUrl}?id="+id)
 		.done(function() {
-    		$("#saveresult").removeClass().addClass("res_ok").text("Save success!");
+			showSuccessText("Save success!");
   		})
   		.fail(function() {
-  			$("#saveresult").removeClass().addClass("res_fail").text("Save failed!");
+  			showErrorText("Save failed!");
   		});
 	}
 	function clear(){
-		emptyAll(["#infobox", "#listbox", "#saveresult"]);
+		emptyAll(["#infobox", "#listbox", "#actionresult"]);
 		$("#savebutton").css("display", "none");
+	}
+	function showErrorText(text){
+		$("#actionresult").removeClass().addClass("res_fail").text(text);
+	}
+	function showSuccessText(text){
+		$("#actionresult").removeClass().addClass("res_ok").text(text);
 	}
 </script>
 </head>
@@ -132,7 +146,7 @@ table{
 		<div id="searchbox">
 			<input type="text" id="searchfield" /> <button id="searchbutton">Search</button>
 			<button id="savebutton">Save</button>
-			<span id="saveresult"></span>
+			<span id="actionresult"></span>
 		</div>
 		<div id="infobox">		
 		</div>
