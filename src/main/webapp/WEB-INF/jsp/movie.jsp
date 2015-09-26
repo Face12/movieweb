@@ -1,11 +1,11 @@
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-    pageEncoding="ISO-8859-1"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Movies</title>
 <c:choose>
 <c:when test="${type=='external'}">
@@ -18,6 +18,7 @@
 	<spring:url value="/movie/get" var="getMovieUrl" />
 </c:otherwise>
 </c:choose>
+<link rel="stylesheet" type="text/css" href="../css/movieweb.css">
 <style type="text/css">
 table, th, td{
 	border: 1px solid green;
@@ -34,35 +35,19 @@ th{
 table{
 	width: 25%;
 }
-.head1{
-	color: blue;
-	font-family: cursive;
-	font-weight: bold;
-	font-size: 20px;
-}
-.result{
-	color: red;
-}
 </style>
 <script src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
-<script src="http://cdn.sockjs.org/sockjs-0.3.4.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.js"></script>
+<script src="../js/movieweb.js"></script>
 <script type="text/javascript">
-	$(function start(){
+	$(function (){
+		useLoadingSpinner();
+		buttonAndEnterFiresFunction("#searchbutton", "#searchfield", searchMovies);
 		$("#savebutton").click(saveMovie);
 		$("#savebutton").css("display", "none");
-		$("#loadAnim").css("display", "none");
 	});
 	function searchMovies(){
 		var q = $("#searchfield").val();
-		$("#loadAnim").css("display", "block");
-		$.getJSON("${searchUrl}?q="+q, showSearchResult)
-		.fail(function() {
-			$("#actionresult").text("Search error!");
-  		})
-		.always(function() {
-			$("#loadAnim").css("display", "none");
-  		});
+		$.getJSON("${searchUrl}?q="+q, showSearchResult);
 	}
 	
 	function showSearchResult(result){
@@ -84,7 +69,6 @@ table{
 	}
 	function showMovie(movieId){
 		clear();
-		$("#loadAnim").css("display", "block");
 		$.getJSON("${getMovieUrl}?id="+movieId, function(movie){
 			$("<ul />").appendTo("#listbox");
 			$.each(movie, function(key, value){
@@ -121,47 +105,34 @@ table{
 						text : workingRole.person.firstName+" "+workingRole.person.lastName
 					}));
 	        });
-		})
-		.done(function() {
-			<c:if test="${type=='external'}">
-				$("#savebutton").css("display", "block");
-				$("#movieId").val(movieId);
-			</c:if>
-		})
-		.fail(function() {
-			$("#actionresult").text("Showing movie error!");
-  		})
-		.always(function() {
-			$("#loadAnim").css("display", "none");
-  		});
+		});
+		<c:if test="${type=='external'}">
+			$("#savebutton").css("display", "block");
+			$("#movieId").val(movieId);
+		</c:if>
 	}
 	function saveMovie(){
 		var id = $("#movieId").val();
 		$.post("${saveMovieUrl}?id="+id)
 		.done(function() {
-    		$("#actionresult").text("Save success!");
+    		$("#saveresult").removeClass().addClass("res_ok").text("Save success!");
   		})
   		.fail(function() {
-  			$("#actionresult").text("Save failed!");
+  			$("#saveresult").removeClass().addClass("res_fail").text("Save failed!");
   		});
 	}
 	function clear(){
-		$("#infobox").empty();
-		$("#listbox").empty();
+		emptyAll(["#infobox", "#listbox", "#saveresult"]);
 		$("#savebutton").css("display", "none");
-		$("#actionresult").empty();
 	}
 </script>
 </head>
 <body>
 	<div id="container">
 		<div id="searchbox">
-			<form action="javascript:searchMovies();">
-				<input type="text" id="searchfield" /> 
-				<input type="submit" value="Search"><img id="loadAnim" src="../img/green-spinner.gif" />
-			</form>			
+			<input type="text" id="searchfield" /> <button id="searchbutton">Search</button>
 			<button id="savebutton">Save</button>
-			<span id="actionresult" class="result"></span>
+			<span id="saveresult"></span>
 		</div>
 		<div id="infobox">		
 		</div>
