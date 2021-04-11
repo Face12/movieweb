@@ -6,7 +6,7 @@
 	<version>0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
 	<properties>
-		<spring.version>4.0.6.RELEASE</spring.version>
+		<spring.version>5.3.5</spring.version>
 		<junit.version>4.12</junit.version>
 		<jackson.version>2.12.2</jackson.version>
 		<jackson.fasterxml.version>2.5.3</jackson.fasterxml.version>
